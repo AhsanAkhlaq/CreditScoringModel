@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Credit Default Prediction</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; }
+    h1 { color: #2c3e50; }
+    form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 600px; }
+    input, select { padding: 8px; font-size: 14px; }
+    button { grid-column: span 2; padding: 10px; background-color: #2ecc71; color: white; border: none; cursor: pointer; font-size: 16px; }
+    button:hover { background-color: #27ae60; }
+    .output { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .more-features { grid-column: span 2; display: none; margin-top: 20px; }
+    .toggle-link { color: #2980b9; cursor: pointer; grid-column: span 2; text-align: center; margin-top: 10px; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Credit Default Risk Prediction</h1>
+  <form id="prediction-form">
+    <input type="number" name="LIMIT_BAL" placeholder="Credit Limit (LIMIT_BAL)" required />
+    <input type="number" name="PAY_0" placeholder="Recent Repayment Status (PAY_0)" required />
+    <input type="number" name="BILL_AMT1" placeholder="Last Bill Amount (BILL_AMT1)" required />
+    <input type="number" name="PAY_AMT1" placeholder="Last Payment Amount (PAY_AMT1)" required />
+    <input type="number" name="AGE" placeholder="Age" required />
+    <select name="EDUCATION">
+      <option value="1">Graduate School</option>
+      <option value="2">University</option>
+      <option value="3">High School</option>
+      <option value="4">Others</option>
+    </select>
+    <select name="MARRIAGE">
+      <option value="1">Married</option>
+      <option value="2">Single</option>
+      <option value="3">Others</option>
+    </select>
+    <input type="number" name="PAY_2" placeholder="Previous Repayment Status (PAY_2)" required />
+
+    <div class="toggle-link" onclick="document.querySelector('.more-features').style.display='grid'">+ Show More Features</div>
+
+    <div class="more-features">
+      <input type="number" name="SEX" placeholder="Gender (SEX)" value="2" />
+      <input type="number" name="PAY_3" placeholder="PAY_3" value="0" />
+      <input type="number" name="PAY_4" placeholder="PAY_4" value="0" />
+      <input type="number" name="PAY_5" placeholder="PAY_5" value="0" />
+      <input type="number" name="PAY_6" placeholder="PAY_6" value="0" />
+      <input type="number" name="BILL_AMT2" placeholder="BILL_AMT2" value="0" />
+      <input type="number" name="BILL_AMT3" placeholder="BILL_AMT3" value="0" />
+      <input type="number" name="BILL_AMT4" placeholder="BILL_AMT4" value="0" />
+      <input type="number" name="BILL_AMT5" placeholder="BILL_AMT5" value="0" />
+      <input type="number" name="BILL_AMT6" placeholder="BILL_AMT6" value="0" />
+      <input type="number" name="PAY_AMT2" placeholder="PAY_AMT2" value="0" />
+      <input type="number" name="PAY_AMT3" placeholder="PAY_AMT3" value="0" />
+      <input type="number" name="PAY_AMT4" placeholder="PAY_AMT4" value="0" />
+      <input type="number" name="PAY_AMT5" placeholder="PAY_AMT5" value="0" />
+      <input type="number" name="PAY_AMT6" placeholder="PAY_AMT6" value="0" />
+    </div>
+
+    <button type="submit">Predict</button>
+  </form>
+  <div class="output" id="output"></div>
+
+  <script>
+    document.getElementById('prediction-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const jsonData = {};
+      formData.forEach((value, key) => jsonData[key] = parseFloat(value));
+
+      const res = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+      });
+      const data = await res.json();
+      const out = document.getElementById('output');
+
+      if (data.error) {
+        out.innerHTML = `<h3 style='color:red;'>Error: ${data.error}</h3>`;
+      } else {
+        out.innerHTML = `
+          <h3>Prediction Result</h3>
+          <p><strong>Default Risk:</strong> ${data.prediction === 1 ? "Likely to Default" : "Low Risk"}</p>
+          <p><strong>Probability:</strong> ${data.probability}</p>
+          <p><strong>Latency:</strong> ${data.latency} seconds</p>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

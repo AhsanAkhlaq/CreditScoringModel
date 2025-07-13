@@ -1,21 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Credit Default Prediction</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; }
-    h1 { color: #2c3e50; }
-    form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 600px; }
-    input, select { padding: 8px; font-size: 14px; }
-    button { grid-column: span 2; padding: 10px; background-color: #2ecc71; color: white; border: none; cursor: pointer; font-size: 16px; }
-    button:hover { background-color: #27ae60; }
-    .output { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
-    .more-features { grid-column: span 2; display: none; margin-top: 20px; }
-    .toggle-link { color: #2980b9; cursor: pointer; grid-column: span 2; text-align: center; margin-top: 10px; text-decoration: underline; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f9;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      max-width: 600px;
+    }
+
+    input,
+    select {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      grid-column: span 2;
+      padding: 10px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    .output {
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .more-features {
+      grid-column: span 2;
+      display: none;
+      margin-top: 20px;
+    }
+
+    .toggle-link {
+      color: #2980b9;
+      cursor: pointer;
+      grid-column: span 2;
+      text-align: center;
+      margin-top: 10px;
+      text-decoration: underline;
+    }
   </style>
 </head>
+
 <body>
   <h1>Credit Default Risk Prediction</h1>
   <form id="prediction-form">
@@ -37,7 +89,8 @@
     </select>
     <input type="number" name="PAY_2" placeholder="Previous Repayment Status (PAY_2)" required />
 
-    <div class="toggle-link" onclick="document.querySelector('.more-features').style.display='grid'">+ Show More Features</div>
+    <div class="toggle-link" onclick="document.querySelector('.more-features').style.display='grid'">+ Show More
+      Features</div>
 
     <div class="more-features">
       <input type="number" name="SEX" placeholder="Gender (SEX)" value="2" />
@@ -64,6 +117,8 @@
   <script>
     document.getElementById('prediction-form').addEventListener('submit', async function (e) {
       e.preventDefault();
+      const out = document.getElementById('output');
+
       const formData = new FormData(e.target);
       const jsonData = {};
       formData.forEach((value, key) => jsonData[key] = parseFloat(value));
@@ -73,8 +128,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jsonData)
       });
+
+      out.innerHTML = `<h3 style='color:red;'>Error: adasdasdasdasd</h3>`
       const data = await res.json();
-      const out = document.getElementById('output');
 
       if (data.error) {
         out.innerHTML = `<h3 style='color:red;'>Error: ${data.error}</h3>`;
@@ -89,4 +145,5 @@
     });
   </script>
 </body>
+
 </html>

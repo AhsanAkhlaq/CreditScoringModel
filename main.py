@@ -1,32 +1,45 @@
-# FastAPI version of credit scoring service with Prometheus monitoring
-# Save as main.py
+# main.py
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Dict
 import pickle
 import pandas as pd
 from prometheus_client import start_http_server, Summary, Counter
 import time
-from fastapi.responses import JSONResponse
-from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-
-# Monitoring
+# --------------------------------------------------
+# 1) Monitoring metrics
+# --------------------------------------------------
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 PREDICTIONS = Counter('credit_scoring_requests_total', 'Total prediction requests')
 
+# --------------------------------------------------
+# 2) FastAPI app + static mount
+# --------------------------------------------------
 app = FastAPI(title="Credit Scoring Service")
+app.mount("/static", StaticFiles(directory="."), name="static")
 
-# Load model and scaler
+@app.get("/", response_class=FileResponse)
+def root():
+    return FileResponse("index.html")
+
+
+# --------------------------------------------------
+# 3) Load model + scaler
+# --------------------------------------------------
 model = pickle.load(open("credit_rf_model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
 
 amount_features = [
-    "LIMIT_BAL", *[f"BILL_AMT{i}" for i in range(1, 7)], *[f"PAY_AMT{i}" for i in range(1, 7)]
+    "LIMIT_BAL", *[f"BILL_AMT{i}" for i in range(1, 7)],
+    *[f"PAY_AMT{i}" for i in range(1, 7)]
 ]
 
+# --------------------------------------------------
+# 4) Pydantic input schema
+# --------------------------------------------------
 class InputData(BaseModel):
     LIMIT_BAL: float
     SEX: int
@@ -52,39 +65,41 @@ class InputData(BaseModel):
     PAY_AMT5: float
     PAY_AMT6: float
 
+# --------------------------------------------------
+# 5) Prediction endpoint (sync) with metrics
+# --------------------------------------------------
 @app.post("/predict")
 @REQUEST_TIME.time()
-async def predict(data: InputData):
+def predict(data: InputData):
     start = time.time()
     PREDICTIONS.inc()
-
     try:
-        input_dict = data.dict()
-        df = pd.DataFrame([input_dict])
+        payload = data.model_dump()
+
+        # ◀ Add this:
+        payload['ID'] = 0
+
+        # ◀ Ensure the DataFrame columns follow the original training order:
+        df = pd.DataFrame([payload], columns=model.feature_names_in_)
+
+        # Scale only the amount features (the rest remain untouched)
         df[amount_features] = scaler.transform(df[amount_features])
 
-        prediction = model.predict(df)[0]
-        probability = model.predict_proba(df)[0, 1]
+        pred = int(model.predict(df)[0])
+        prob = float(model.predict_proba(df)[0,1])
+        latency = round(time.time() - start, 4)
 
-        return {
-            "prediction": int(prediction),
-            "probability": float(round(probability, 4)),
-            "latency": round(time.time() - start, 4)
-        }
+        return {"prediction": pred, "probability": prob, "latency": latency}
 
     except Exception as e:
-        return JSONResponse(status_code=400, content={"error": str(e)})
+        import traceback; traceback.print_exc()
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-# Start Prometheus server
-start_http_server(8001)
-
-
-
-
-app.mount("/static", StaticFiles(directory="."), name="static")
-
-@app.get("/", response_class=FileResponse)
-async def root():
-    return FileResponse("index.html")
-
+# --------------------------------------------------
+# 6) Start Prometheus server
+# --------------------------------------------------
+if __name__ == "__main__":
+    start_http_server(8001)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

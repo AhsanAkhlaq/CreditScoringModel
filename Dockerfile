@@ -5,12 +5,10 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy files
-COPY main.py . 
-COPY credit_rf_model.pkl . 
-COPY scaler.pkl .
+COPY . .
 
 # Install dependencies
-RUN pip install fastapi uvicorn pandas scikit-learn prometheus-client pydantic
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose ports
 EXPOSE 8000 8001

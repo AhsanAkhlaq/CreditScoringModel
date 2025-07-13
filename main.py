@@ -33,8 +33,8 @@ model = pickle.load(open("credit_rf_model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
 
 amount_features = [
-    "LIMIT_BAL", *[f"BILL_AMT{i}" for i in range(1, 7)],
-    *[f"PAY_AMT{i}" for i in range(1, 7)]
+    "LIMIT_BAL", *[f"BILL_AMT{i}" for i in range(1, 5)],
+    *[f"PAY_AMT{i}" for i in range(1, 5)]
 ]
 
 # --------------------------------------------------
@@ -50,20 +50,14 @@ class InputData(BaseModel):
     PAY_2: int
     PAY_3: int
     PAY_4: int
-    PAY_5: int
-    PAY_6: int
     BILL_AMT1: float
     BILL_AMT2: float
     BILL_AMT3: float
     BILL_AMT4: float
-    BILL_AMT5: float
-    BILL_AMT6: float
     PAY_AMT1: float
     PAY_AMT2: float
     PAY_AMT3: float
     PAY_AMT4: float
-    PAY_AMT5: float
-    PAY_AMT6: float
 
 # --------------------------------------------------
 # 5) Prediction endpoint (sync) with metrics
@@ -76,10 +70,7 @@ def predict(data: InputData):
     try:
         payload = data.model_dump()
 
-        # ◀ Add this:
-        payload['ID'] = 0
-
-        # ◀ Ensure the DataFrame columns follow the original training order:
+        # Ensure the DataFrame columns follow the original training order:
         df = pd.DataFrame([payload], columns=model.feature_names_in_)
 
         # Scale only the amount features (the rest remain untouched)
@@ -95,11 +86,3 @@ def predict(data: InputData):
         import traceback; traceback.print_exc()
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-
-# --------------------------------------------------
-# 6) Start Prometheus server
-# --------------------------------------------------
-if __name__ == "__main__":
-    start_http_server(8001)
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

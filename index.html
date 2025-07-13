@@ -2,145 +2,653 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Credit Default Prediction</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credit Risk Assessment</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background: #f4f4f9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    h1 {
-      color: #2c3e50;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    form {
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .main-content {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      max-width: 600px;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 40px;
     }
 
-    input,
-    select {
-      padding: 8px;
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+
+    .card-header {
+      margin-bottom: 25px;
+    }
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .card-header p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e1e5e9;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+      margin: 25px 0 15px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .toggle-btn {
+      background: #f8f9fa;
+      color: #666;
+      border: 2px solid #e1e5e9;
+      padding: 10px 20px;
+      margin: 20px 0;
       font-size: 14px;
     }
 
-    button {
-      grid-column: span 2;
-      padding: 10px;
-      background-color: #2ecc71;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
+    .toggle-btn:hover {
+      background: #e9ecef;
     }
 
-    button:hover {
-      background-color: #27ae60;
-    }
-
-    .output {
-      margin-top: 30px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .more-features {
-      grid-column: span 2;
+    .advanced-section {
       display: none;
       margin-top: 20px;
     }
 
-    .toggle-link {
-      color: #2980b9;
-      cursor: pointer;
-      grid-column: span 2;
+    .advanced-section.show {
+      display: block;
+    }
+
+    .result-card {
       text-align: center;
-      margin-top: 10px;
-      text-decoration: underline;
+    }
+
+    .result-placeholder {
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .result-placeholder .icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .risk-result {
+      padding: 20px;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .risk-low {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .risk-high {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .probability-bar {
+      background: #f0f0f0;
+      height: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .probability-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+      transition: width 0.5s ease;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .metric {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .debug-info {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 0.9rem;
+      text-align: left;
     }
   </style>
 </head>
 
 <body>
-  <h1>Credit Default Risk Prediction</h1>
-  <form id="prediction-form">
-    <input type="number" name="LIMIT_BAL" placeholder="Credit Limit (LIMIT_BAL)" required />
-    <input type="number" name="PAY_0" placeholder="Recent Repayment Status (PAY_0)" required />
-    <input type="number" name="BILL_AMT1" placeholder="Last Bill Amount (BILL_AMT1)" required />
-    <input type="number" name="PAY_AMT1" placeholder="Last Payment Amount (PAY_AMT1)" required />
-    <input type="number" name="AGE" placeholder="Age" required />
-    <select name="EDUCATION">
-      <option value="1">Graduate School</option>
-      <option value="2">University</option>
-      <option value="3">High School</option>
-      <option value="4">Others</option>
-    </select>
-    <select name="MARRIAGE">
-      <option value="1">Married</option>
-      <option value="2">Single</option>
-      <option value="3">Others</option>
-    </select>
-    <input type="number" name="PAY_2" placeholder="Previous Repayment Status (PAY_2)" required />
-
-    <div class="toggle-link" onclick="document.querySelector('.more-features').style.display='grid'">+ Show More
-      Features</div>
-
-    <div class="more-features">
-      <input type="number" name="SEX" placeholder="Gender (SEX)" value="2" />
-      <input type="number" name="PAY_3" placeholder="PAY_3" value="0" />
-      <input type="number" name="PAY_4" placeholder="PAY_4" value="0" />
-      <input type="number" name="PAY_5" placeholder="PAY_5" value="0" />
-      <input type="number" name="PAY_6" placeholder="PAY_6" value="0" />
-      <input type="number" name="BILL_AMT2" placeholder="BILL_AMT2" value="0" />
-      <input type="number" name="BILL_AMT3" placeholder="BILL_AMT3" value="0" />
-      <input type="number" name="BILL_AMT4" placeholder="BILL_AMT4" value="0" />
-      <input type="number" name="BILL_AMT5" placeholder="BILL_AMT5" value="0" />
-      <input type="number" name="BILL_AMT6" placeholder="BILL_AMT6" value="0" />
-      <input type="number" name="PAY_AMT2" placeholder="PAY_AMT2" value="0" />
-      <input type="number" name="PAY_AMT3" placeholder="PAY_AMT3" value="0" />
-      <input type="number" name="PAY_AMT4" placeholder="PAY_AMT4" value="0" />
-      <input type="number" name="PAY_AMT5" placeholder="PAY_AMT5" value="0" />
-      <input type="number" name="PAY_AMT6" placeholder="PAY_AMT6" value="0" />
+  <div class="container">
+    <div class="header">
+      <h1>🛡️ Credit Risk Assessment</h1>
+      <p>Advanced machine learning prediction system for credit default risk analysis</p>
     </div>
 
-    <button type="submit">Predict</button>
-  </form>
-  <div class="output" id="output"></div>
+    <div class="main-content">
+      <!-- Form Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2>📊 Credit Assessment Form</h2>
+          <p>Enter customer information for risk evaluation</p>
+        </div>
+
+        <form id="creditForm">
+          <div class="section-title">Basic Information</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="LIMIT_BAL">Credit Limit (NT$)</label>
+              <input type="number" id="LIMIT_BAL" name="LIMIT_BAL" value="50000" required>
+            </div>
+            <div class="form-group">
+              <label for="AGE">Age</label>
+              <input type="number" id="AGE" name="AGE" value="35" min="18" max="100" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="SEX">Gender</label>
+              <select id="SEX" name="SEX" required>
+                <option value="1">Male</option>
+                <option value="2" selected>Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="EDUCATION">Education</label>
+              <select id="EDUCATION" name="EDUCATION" required>
+                <option value="1">Graduate School</option>
+                <option value="2" selected>University</option>
+                <option value="3">High School</option>
+                <option value="4">Others</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="MARRIAGE">Marital Status</label>
+            <select id="MARRIAGE" name="MARRIAGE" required>
+              <option value="1">Married</option>
+              <option value="2" selected>Single</option>
+              <option value="3">Others</option>
+            </select>
+          </div>
+
+          <div class="section-title">Recent Payment History</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="PAY_0">September Payment Status</label>
+              <select id="PAY_0" name="PAY_0" required>
+                <option value="-1" selected>Paid Duly</option>
+                <option value="1">1 Month Delay</option>
+                <option value="2">2 Months Delay</option>
+                <option value="3">3 Months Delay</option>
+                <option value="4">4+ Months Delay</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="PAY_2">August Payment Status</label>
+              <select id="PAY_2" name="PAY_2" required>
+                <option value="-1" selected>Paid Duly</option>
+                <option value="1">1 Month Delay</option>
+                <option value="2">2 Months Delay</option>
+                <option value="3">3 Months Delay</option>
+                <option value="4">4+ Months Delay</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="BILL_AMT1">September Bill Amount (NT$)</label>
+              <input type="number" id="BILL_AMT1" name="BILL_AMT1" value="10000" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="PAY_AMT1">September Payment Amount (NT$)</label>
+              <input type="number" id="PAY_AMT1" name="PAY_AMT1" value="2000" min="0" required>
+            </div>
+          </div>
+
+          <button type="button" class="btn toggle-btn" onclick="toggleAdvanced()">
+            <span id="toggleText">Show Advanced Options</span>
+          </button>
+
+          <div id="advancedSection" class="advanced-section">
+            <div class="section-title">Additional Payment History</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="PAY_3">July Payment Status</label>
+                <input type="number" id="PAY_3" name="PAY_3" value="0" min="-1" max="9">
+              </div>
+              <div class="form-group">
+                <label for="PAY_4">June Payment Status</label>
+                <input type="number" id="PAY_4" name="PAY_4" value="0" min="-1" max="9">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="BILL_AMT2">August Bill Amount (NT$)</label>
+                <input type="number" id="BILL_AMT2" name="BILL_AMT2" value="0" min="0">
+              </div>
+              <div class="form-group">
+                <label for="BILL_AMT3">July Bill Amount (NT$)</label>
+                <input type="number" id="BILL_AMT3" name="BILL_AMT3" value="0" min="0">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="BILL_AMT4">June Bill Amount (NT$)</label>
+                <input type="number" id="BILL_AMT4" name="BILL_AMT4" value="0" min="0">
+              </div>
+              <div class="form-group">
+                <label for="PAY_AMT2">August Payment Amount (NT$)</label>
+                <input type="number" id="PAY_AMT2" name="PAY_AMT2" value="0" min="0">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="PAY_AMT3">July Payment Amount (NT$)</label>
+                <input type="number" id="PAY_AMT3" name="PAY_AMT3" value="0" min="0">
+              </div>
+              <div class="form-group">
+                <label for="PAY_AMT4">June Payment Amount (NT$)</label>
+                <input type="number" id="PAY_AMT4" name="PAY_AMT4" value="0" min="0">
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">
+            Predict Credit Risk
+          </button>
+        </form>
+      </div>
+
+      <!-- Results Card -->
+      <div class="card result-card">
+        <div class="card-header">
+          <h2>⚡ Risk Assessment</h2>
+          <p id="resultDescription">Submit the form to get prediction results</p>
+        </div>
+
+        <div id="resultContent">
+          <div class="result-placeholder">
+            <div class="icon">📈</div>
+            <h3>Ready for Analysis</h3>
+            <p>Fill out the credit assessment form to get instant risk predictions powered by machine learning</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('prediction-form').addEventListener('submit', async function (e) {
+    let isAdvancedOpen = false;
+
+    function toggleAdvanced() {
+      const section = document.getElementById('advancedSection');
+      const toggleText = document.getElementById('toggleText');
+
+      isAdvancedOpen = !isAdvancedOpen;
+
+      if (isAdvancedOpen) {
+        section.classList.add('show');
+        toggleText.textContent = 'Hide Advanced Options';
+      } else {
+        section.classList.remove('show');
+        toggleText.textContent = 'Show Advanced Options';
+      }
+    }
+
+    function showLoading() {
+      const resultContent = document.getElementById('resultContent');
+      const resultDescription = document.getElementById('resultDescription');
+
+      resultDescription.textContent = 'Analyzing credit risk...';
+      resultContent.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your request...</p>
+                </div>
+            `;
+    }
+
+    function showError(message, debugInfo = null) {
+      const resultContent = document.getElementById('resultContent');
+      const resultDescription = document.getElementById('resultDescription');
+
+      resultDescription.textContent = 'Error occurred';
+      let debugDisplay = '';
+      if (debugInfo) {
+        debugDisplay = `<div class="debug-info"><strong>Debug Info:</strong><br>${debugInfo}</div>`;
+      }
+
+      resultContent.innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+                ${debugDisplay}
+            `;
+    }
+
+    function showResult(result) {
+      const resultContent = document.getElementById('resultContent');
+      const resultDescription = document.getElementById('resultDescription');
+
+      console.log('Received result:', result);
+
+      const isHighRisk = result.prediction === 1;
+      // Convert probability to percentage if it's a decimal
+      const probability = result.probability > 1 ? result.probability : result.probability * 100;
+      const riskLevel = probability > 70 ? 'High' : probability > 40 ? 'Medium' : 'Low';
+
+      resultDescription.textContent = 'Machine learning prediction results';
+
+      resultContent.innerHTML = `
+                <div class="risk-result">
+                    <div class="risk-badge ${isHighRisk ? 'risk-high' : 'risk-low'}">
+                        ${isHighRisk ? 'Likely to Default' : 'Low Risk'}
+                    </div>
+                    
+                    <h3 style="margin: 20px 0;">${riskLevel} Risk</h3>
+                    
+                    <p style="margin-bottom: 20px; color: #666;">
+                        ${isHighRisk
+          ? 'Customer shows elevated risk patterns and may default on payments'
+          : 'Customer demonstrates good creditworthiness and payment behavior'
+        }
+                    </p>
+                    
+                    <div style="text-align: left;">
+                        <h4>Default Probability: ${probability.toFixed(1)}%</h4>
+                        <div class="probability-bar">
+                            <div class="probability-fill" style="width: ${probability}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                            <span>Low Risk</span>
+                            <span>High Risk</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">${result.latency ? result.latency.toFixed(3) + 's' : '< 1s'}</div>
+                            <div class="metric-label">Response Time</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${probability > 80 || probability < 20 ? 'High' : 'Medium'}</div>
+                            <div class="metric-label">Confidence</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                        <h4 style="margin-bottom: 10px;">Recommendation:</h4>
+                        <p style="font-size: 0.9rem; color: #666;">
+                            ${isHighRisk
+          ? 'Consider stricter lending terms or additional collateral'
+          : 'Proceed with standard lending terms'
+        }
+                        </p>
+                    </div>
+                </div>
+            `;
+    }
+
+    // Mock prediction function (replace with actual API call)
+    async function mockPrediction(data) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Simple mock logic based on payment status and age
+      const riskScore = (data.PAY_0 + data.PAY_2 + (data.AGE < 25 ? 1 : 0)) / 10;
+      const probability = Math.min(Math.max(riskScore * 30 + Math.random() * 20, 5), 95);
+
+      return {
+        prediction: probability > 50 ? 1 : 0,
+        probability: probability / 100, // Return as decimal to match API format
+        latency: Math.random() * 0.5 + 0.2
+      };
+    }
+
+    document.getElementById('creditForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const out = document.getElementById('output');
 
       const formData = new FormData(e.target);
-      const jsonData = {};
-      formData.forEach((value, key) => jsonData[key] = parseFloat(value));
+      const data = {};
 
-      const res = await fetch('http://localhost:8000/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(jsonData)
-      });
+      for (let [key, value] of formData.entries()) {
+        data[key] = parseFloat(value) || 0;
+      }
 
-      out.innerHTML = `<h3 style='color:red;'>Error: adasdasdasdasd</h3>`
-      const data = await res.json();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
 
-      if (data.error) {
-        out.innerHTML = `<h3 style='color:red;'>Error: ${data.error}</h3>`;
-      } else {
-        out.innerHTML = `
-          <h3>Prediction Result</h3>
-          <p><strong>Default Risk:</strong> ${data.prediction === 1 ? "Likely to Default" : "Low Risk"}</p>
-          <p><strong>Probability:</strong> ${data.probability}</p>
-          <p><strong>Latency:</strong> ${data.latency} seconds</p>
-        `;
+      showLoading();
+
+      try {
+        let result;
+        let debugInfo = '';
+
+        try {
+          console.log('Sending data to API:', data);
+          const response = await fetch('http://localhost:8000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          console.log('API Response status:', response.status);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          result = await response.json();
+          console.log('API Response data:', result);
+
+          // Validate the result format
+          if (typeof result.prediction === 'undefined' || typeof result.probability === 'undefined') {
+            throw new Error('Invalid response format from API');
+          }
+
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          debugInfo = `API Error: ${apiError.message}. Using mock prediction instead.`;
+
+          // Fallback to mock prediction
+          result = await mockPrediction(data);
+          console.log('Mock prediction result:', result);
+        }
+
+        showResult(result);
+
+        if (debugInfo) {
+          // Show debug info if API failed but mock succeeded
+          const resultContent = document.getElementById('resultContent');
+          resultContent.innerHTML += `<div class="debug-info">${debugInfo}</div>`;
+        }
+
+      } catch (error) {
+        console.error('General Error:', error);
+        showError('Failed to process prediction. Please try again.', error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Predict Credit Risk';
       }
     });
   </script>

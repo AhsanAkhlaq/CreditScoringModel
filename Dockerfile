@@ -9,9 +9,9 @@ COPY main.py .
 COPY credit_rf_model.pkl . 
 COPY scaler.pkl .
 COPY index.html .
-requirements.txt .
-UCI_Credit_Card.csv
-model.ipynb
+COPY requirements.txt .
+COPY UCI_Credit_Card.csv .
+COPY model.ipynb .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt

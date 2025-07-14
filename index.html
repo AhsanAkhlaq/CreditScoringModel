@@ -568,21 +568,6 @@
             `;
     }
 
-    // Mock prediction function (replace with actual API call)
-    async function mockPrediction(data) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Simple mock logic based on payment status and age
-      const riskScore = (data.PAY_0 + data.PAY_2 + (data.AGE < 25 ? 1 : 0)) / 10;
-      const probability = Math.min(Math.max(riskScore * 30 + Math.random() * 20, 5), 95);
-
-      return {
-        prediction: probability > 50 ? 1 : 0,
-        probability: probability / 100, // Return as decimal to match API format
-        latency: Math.random() * 0.5 + 0.2
-      };
-    }
 
     document.getElementById('creditForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -628,17 +613,22 @@
 
         } catch (apiError) {
           console.error('API Error:', apiError);
-          debugInfo = `API Error: ${apiError.message}. Using mock prediction instead.`;
-
-          // Fallback to mock prediction
-          result = await mockPrediction(data);
-          console.log('Mock prediction result:', result);
+          debugInfo = `API Error: ${apiError.message}`;
         }
-
-        showResult(result);
-
-        if (debugInfo) {
-          // Show debug info if API failed but mock succeeded
+		
+		
+		if(result)
+		{
+		
+		showResult(result);
+		}
+		else{
+		
+        showError('Failed to get response. Please try again.');
+		}
+		
+		if (debugInfo) {
+          // Show debug info if API failed 
           const resultContent = document.getElementById('resultContent');
           resultContent.innerHTML += `<div class="debug-info">${debugInfo}</div>`;
         }

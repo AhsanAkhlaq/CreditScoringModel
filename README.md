@@ -107,12 +107,14 @@ Then visit: [http://localhost:8000](http://localhost:8000)
 Official image published at:
 
 > [https://hub.docker.com/r/masterlord/creditscoringmodel](https://hub.docker.com/r/masterlord/creditscoringmodel)
+
+
 [![Docker Pulls](https://img.shields.io/docker/pulls/masterlord/creditscoringmodel)](https://hub.docker.com/r/masterlord/creditscoringmodel)
 
 Pull the image manually:
 
 ```bash
-docker pull masterlord/creditscoringmodel
+docker pull masterlord/creditscoringmodel:v1.0
 ```
 
 ---

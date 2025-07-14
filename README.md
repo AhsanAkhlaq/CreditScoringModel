@@ -2,7 +2,8 @@
 
 ## 🌐 Frontend Preview
 
-<!-- Paste screenshots or gifs of the UI here -->
+![Credit Risk Assessment](https://github.com/user-attachments/assets/c1d75925-1592-4748-b8ba-f639678755f4)
+
 
 A production-ready machine learning web service that predicts the likelihood of a credit card client defaulting on their next payment. Built with a Random Forest model trained on the UCI "Default of Credit Card Clients" dataset, the system is served via a FastAPI backend and paired with a clean, interactive HTML/CSS frontend. The entire application is Dockerized for seamless local or cloud deployment.
 
